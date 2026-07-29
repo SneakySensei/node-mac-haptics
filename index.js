@@ -1,4 +1,6 @@
-const haptics = require('bindings')('haptics.node');
+const isSupported = process.platform === 'darwin';
+
+const haptics = isSupported ? require('bindings')('haptics.node') : null;
 
 const performFeedback = (pattern = 'NSHapticFeedbackPatternGeneric', performanceTime = 'NSHapticFeedbackPerformanceTimeNow') => {
     if (!['NSHapticFeedbackPatternLevelChange', 'NSHapticFeedbackPatternAlignment', 'NSHapticFeedbackPatternGeneric'].includes(pattern)) {
@@ -9,9 +11,14 @@ const performFeedback = (pattern = 'NSHapticFeedbackPatternGeneric', performance
         throw new TypeError('Invalid performance time provided');
     }
 
+    if (!isSupported) {
+        return;
+    }
+
     return haptics.performFeedback(pattern, performanceTime);
 };
 
 module.exports = {
+    isSupported,
     performFeedback,
 };
